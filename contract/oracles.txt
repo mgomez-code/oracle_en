@@ -1,0 +1,63 @@
+
+  stateful entrypoint registerOracle(      // Función para Registrar el Oraculo del Contracto
+                           qfee : int,     //Fee de pago mínimo
+                           rttl : int) : oracle(string, string) =   		//bloques para el tiempo de vencimiento del oráculo
+    Oracle.register(Contract.address, qfee, RelativeTTL(rttl))
+
+  entrypoint get_oracle(): oracle(string, string) =  				//Consulta dirección del oráculo
+    state.greeter_oracle
+
+  entrypoint get_query(): oracle_query(string, string) =  			//Consulta id del query
+    
+  entrypoint get_answer(stranswer : string) =  					//Consulta si hay respuesta
+    
+
+  payable stateful entrypoint quest_answer(quest : string, answ : string) : bool =  //Función registrar respuesta
+   
+
+  entrypoint queryFee(o : oracle(string, string)) : int =  			//Consulta pago mínimo para una consulta del oráculo
+   
+
+  payable stateful entrypoint createQuery(      				//Hacer la consulta al oráculo, pagar
+                                          o    : oracle(string, string),    	//dirección del oráculo
+                                          q    : string,      			//pregunta
+                                          qfee : int,         			//pago
+                                          qttl : int,         			//controles de la última altura a la que el oráculo puede enviar una respuesta
+                                          rttl : int) : oracle_query(string, string) =    //controla el tiempo que una respuesta se mantiene en la cadena
+  
+
+  stateful entrypoint extendOracle(  						//Extender el tiempo del oráculo
+                                    o   : oracle(string, string),
+                                    ttl : int) : unit =
+  
+  stateful entrypoint respond(  						// Agrega la respuesta a la pregunta que realizan al oráculo
+                              o    : oracle(string, string),  			//dirección del oráculo
+                              q    : oracle_query(string, string),  		//id de la consulta en el oráculo
+                              r    : string) =  				//respuesta
+    
+
+  entrypoint getQuestion(  							//consulta la pregunta que le hicieron al orácula según id
+                          o : oracle(string, string),    			//dirección del oráculo
+                          q : oracle_query(string, string)) : string =    	//id de la consulta en el oráculo
+   
+
+  entrypoint hasAnswer(  							//Consulta si la pregunta tiene respuesta
+                       o : oracle(string, string),
+                       q : oracle_query(string, string)) =
+    
+
+  entrypoint getAnswer(  							//Muestra la respuesta a una preguna
+                       o : oracle(string, string),  				//dirección del oráculo
+                       q : oracle_query(string, string)) : option(string) =    //id de la consulta en el oráculo
+  
+    
+  //Funciones básicas
+  
+  stateful entrypoint contract_creator() = //dirección que creo el contracto
+    Contract.creator
+
+  stateful entrypoint contract_address() = //dirección del contracto
+    Contract.address
+
+  stateful entrypoint contract_balance() = //balance del contracto
+    Contract.balance
