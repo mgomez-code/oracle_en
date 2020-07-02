@@ -36,4 +36,5 @@ url:(https://mgomez-code.github.io/oracle/)
 #####  18.- We verify on screen that the Query Id appears, which is what identifies the answer in the oracle.
 #####  19.- Press the command button identified as Answer.
 #####  20.- We go up on the screen and check the answer.
-#####  21.- We repeat steps 16-20 for the remaining two greetings.
+#####  21.- We repeat steps 16-20 for the remaining two question.
+- [Oracle Operation Video](https://youtu.be/zHkx3Fbvux8)
