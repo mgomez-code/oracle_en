@@ -15,7 +15,7 @@ contract Oracles =
     Oracle.register(Contract.address, qfee, RelativeTTL(rttl))
 
   entrypoint get_oracle(): oracle(string, string) = 					 //Consult direction of the oracle
-    state.greeter_oracle
+    state.weather_oracle
 
   entrypoint get_query(): oracle_query(string, string) =  				//Get query id
     switch(Map.lookup(Call.caller, state.id_query))
