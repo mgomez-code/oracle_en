@@ -81,7 +81,7 @@ Functions that allow the oracle operator to register, configure and keep the ora
   entrypoint getQuestion(  								
                           o : oracle(string, string),   //oracle address
                           q : oracle_query(string, string)) : string =  //id of query in oracle
-    Oracle.get_question(o, q)      					//show the question
+    Oracle.get_question(o, q)  //show the question
 ~~~
 ---
 ##### Query function if the question has an answer
@@ -100,8 +100,8 @@ Functions that allow the oracle operator to register, configure and keep the ora
 ~~~
   entrypoint getAnswer(  
                        o : oracle(string, string),  		//oracle address
-                       q : oracle_query(string, string)) : option(string) =    //id of query in oracle
-    Oracle.get_answer(o, q)  		//show the answer
+                       q : oracle_query(string, string)) : option(string) =  //id of query in oracle
+    Oracle.get_answer(o, q)  //show the answer
 ~~~
 ---
 ##### Obtains Balance of the contract
@@ -126,7 +126,7 @@ Functions that allow users (clients) to interact with oracle
 ##### Consult minimum payment of the oracle
 ---
 ~~~
-  entrypoint queryFee(o : oracle(string, string)) : int = 	//oracle address 				
+  entrypoint queryFee(o : oracle(string, string)) : int = //oracle address 				
     Oracle.query_fee(o)
 ~~~
 ---
@@ -134,10 +134,10 @@ Functions that allow users (clients) to interact with oracle
 ---
 ~~~
   payable stateful entrypoint createQuery(      					
-                                          o    : oracle(string, string),   //oracle address
-                                          q    : string,      				     //question
-                                          qfee : int,         				     //fee
-                                          qttl : int,         				     //last height oracle to post a reply
+                                          o    : oracle(string, string),  //oracle address
+                                          q    : string, //question
+                                          qfee : int,  //fee
+                                          qttl : int,  //last height oracle to post a reply
                                           rttl : int) : oracle_query(string, string) = //time the response stays on the chain
     require(qfee =< Call.value, "insufficient value for qfee")    		//check the fee
     let query : oracle_query(string, string) = Oracle.query(o, q, qfee, RelativeTTL(qttl), RelativeTTL(rttl))  //records the query to the oracle, shows the id
@@ -161,10 +161,10 @@ Functions that allow users (clients) to interact with oracle
 ---
 ~~~
   stateful entrypoint respond(  
-                              o    : oracle(string, string),  	//oracle address
+                              o    : oracle(string, string),  //oracle address
                               q    : oracle_query(string, string),  //id of query in oracle
-                              r    : string) =  	//reply
-    Oracle.respond(o, q, r)        							  //reply
+                              r    : string) =  //reply
+    Oracle.respond(o, q, r)   //reply
 ~~~
 ---
 
@@ -226,9 +226,9 @@ contract Source =
       true
 
   entrypoint getQuestion(  								
-                o : oracle(string, string),    		              //oracle address
+                o : oracle(string, string), //oracle address
                 q : oracle_query(string, string)) : string =    //id of query in oracle
-    Oracle.get_question(o, q)      							                //show the question
+    Oracle.get_question(o, q)   //show the question
 
   entrypoint hasAnswer(  								
                        o : oracle(string, string),
@@ -238,9 +238,9 @@ contract Source =
       Some(_) => true
 
   entrypoint getAnswer(  
-        o : oracle(string, string),  					                  //oracle address
+        o : oracle(string, string),  //oracle address
         q : oracle_query(string, string)) : option(string) =    //id of query in oracle
-    Oracle.get_answer(o, q)  								                    //show the answer
+    Oracle.get_answer(o, q)  //show the answer
 
   stateful entrypoint contract_balance() = 
     Contract.balance
@@ -279,7 +279,7 @@ contract Source =
 
   entrypoint getCheck(
                     o : oracle(string, string)) =  	//oracle address
-    Oracle.check(o)  									             //show the answer
+    Oracle.check(o)  	//show the answer
 
   stateful entrypoint contract_creator() = 
     Contract.creator
