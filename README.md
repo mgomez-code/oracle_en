@@ -1,50 +1,282 @@
-# Oracle_en
 # Oracle tutorial
-### How does it work?
 
-Example of a smart contract that allows you to interact with the operating functions of an oracle. Allowing you to manage oracle questions and answers
-## ********************************************************************************************************************************
+This tutorial will provide an introduction to Sophia's syntax and some of its features with a "Source" smart contract using aeternity 
+oracles. Running this tutorial should give the reader an idea of ​​the basic process of writing Sophia smart contracts. 
+The contract that we will create in this tutorial will allow you to use the functions of the oracle operator to register and 
+configure it, in such a way that it responds to the questions made by users (clients) on behalf of the oracle.
+
+- [Recommended reading] (https://github.com/aeternity/protocol/blob/master/oracles/oracles.md)
+
 ## Code in Sophia
 First, the functions used by the operator of the oracle to register, configure and maintain it are shown.
 Secondly, the functions that allow users (clients) to request the information provided by Oracle are shown. 
 To obtain this information, the client must cancel a fee.
 
-## ************************************************************************************************************
-## *****Key values ​​to store*****
-## ************************************************************************************************************
-## *****In this section all the variables of interest for the operation of the contract are declared*****
+### ************************************************************************************************************
+### *****Key values ​​to store*****
+### ************************************************************************************************************
+### *****In this section all the variables of interest for the operation of the contract are declared*****
 
-### Step by Step
-#####  1.- Get the baseaepp  from any of the following links:
-  - [Google Play](https://play.google.com/store/apps/details?id=com.aeternity.base)
-  - [App Store](https://apps.apple.com/ru/app/base-%C3%A6pp-wallet/id1458655724)
-#####  2.- Run the application and create an account.
-#####  3.- Set the network to baseaepp. In setting > node on: Network select testnet.
-#####  4.- Select an account.
-#####  5.- Get test token.
-        5.1- Copy address of the wallet.
-        5.2- Enter the faucet through the following link using the browser of your choice:(https://testnet.faucet.aepps.com/)
-        5.3- Paste Wallet address in the field intended for it.
-        5.4- Click on the button identified as Top UP.
-#####  6.- Verify the tokens in the base aepp wallet.
-#####  7.- Enter the aepp base browser and copy the following
-url:(https://mgomez-code.github.io/oracle/)
-#####  8.- Press the command button identified as Fee Query. If the value of the Fee is obtained. Go to step 12
-#####  9.- If the Fee value is not obtained, it indicates that at the time of the test the TTL of the oracle has expired.
-#####  10.- Press the in the browser menu located in the upper right and we update the page.
-#####  10.- Press the command button identified as Register Oracle. You will see a register message on the screen.
-#####  11.- Press the command button identified as Fee Query.
-#####  12.- It is verified that the screen displays the Fee Query value (10), in this case.
-#####  13.- We go down on the screen and position ourselves in the Register section Question Answer.
-#####  14.- We enter the questions and answers of our preference, For the purpose of this tutorial we will use the following:
-	14.1- Question: Temperature / Answer: Ambient. Enter data and press the command button Register Question Answer. 
-        14.2- Question: Humidity / Answer: Relative. Enter data and press the command button Register Question Answer. 
-        14.3- Question: Radiation / Answer: Solar. Enter data and press the command button Register Question Answer. 
-#####  15.- We go down on the screen and position ourselves in the section Create Query.
-#####  16.- In the String field we put any of the questions that were registered in the previous step and the value 10 corresponding to the fee in the field Payment.
-#####  17.- Press the command button to confirm the payment of the query to Oracle.
-#####  18.- We verify on screen that the Query Id appears, which is what identifies the answer in the oracle.
-#####  19.- Press the command button identified as Answer.
-#####  20.- We go up on the screen and check the answer.
-#####  21.- We repeat steps 16-20 for the remaining two question.
-- [Oracle Operation Video](https://youtu.be/zHkx3Fbvux8)
+###  Key values ​​to store 
+  record state = {  									
+    source_oracle : map(address, oracle(string, string)),
+    id_query : map(address, oracle_query(string, string)),
+    question_answer : map(string, string)}
+
+### ************************************************************************************************************
+### *****Init Function*****/////
+### ************************************************************************************************************
+### **********In this section the contract is initialized and the initial values ​​are given to the variables*****
+
+#### Función init
+  stateful entrypoint init() : state =  						 
+    { source_oracle = {},
+      id_query = {}, 
+      question_answer  = {} }
+
+### ************************************************************************************************************
+### *****Oracle Operator Functions*****
+### ************************************************************************************************************
+### *****Functions that allow the oracle operator to register, configure and keep the oracle operational********
+
+#### Function to register the Oracle
+  stateful entrypoint registerOracle(      						
+                           qfee : int,     						//Minimum payment fee
+                           rttl : int) : oracle(string, string) =   			//oracle expiration time blocks
+    let register: oracle(string, string) =  Oracle.register(Contract.address, qfee, RelativeTTL(rttl))
+    put(state{ source_oracle[Contract.address] = register })
+    register
+
+#### Function to Consult oracle address
+  entrypoint get_oracle(): oracle(string, string) =  					
+    switch(Map.lookup(Contract.address, state.source_oracle))
+      None    => abort("Not registered")
+      Some(x) => x
+
+#### Function to Extend Oracle Time
+  stateful entrypoint extendOracle(  							
+                                    o   : oracle(string, string),			//oracle address
+                                    ttl : int) : unit =					//oracle expiration time blocks 
+    Oracle.extend(o, RelativeTTL(ttl))
+
+#### Function that records the oracle's question and answer
+  payable stateful entrypoint quest_answer(quest : string, answ : string) : bool = 
+    let val = Call.value
+    if(val > 0)
+      false
+    else
+      put(state{question_answer[quest] = answ })
+      true
+
+#### Function to check the question that was asked to the oracle according to id
+  entrypoint getQuestion(  								
+                          o : oracle(string, string),    				//oracle address
+                          q : oracle_query(string, string)) : string =    		//id of query in oracle
+    Oracle.get_question(o, q)      							//show the question
+
+#### Query function if the question has an answer
+  entrypoint hasAnswer(  								
+                       o : oracle(string, string),
+                       q : oracle_query(string, string)) =
+    switch(Oracle.get_answer(o, q))
+      None    => false
+      Some(_) => true
+
+#### Function that shows the answer to a question
+  entrypoint getAnswer(  
+                       o : oracle(string, string),  					//oracle address
+                       q : oracle_query(string, string)) : option(string) =    		//id of query in oracle
+    Oracle.get_answer(o, q)  								//show the answer
+
+#### Function that Obtains Balance of the contract
+  stateful entrypoint contract_balance() = 
+    Contract.balance
+
+#### Function Query Id of the query associated with an address
+  entrypoint get_query(): oracle_query(string, string) =  
+    switch(Map.lookup(Call.caller, state.id_query))
+      None    => abort("No query")
+      Some(x) => x
+
+### ************************************************************************************************************
+### *****Oracle User Functions*****
+### ************************************************************************************************************
+### *****Functions that allow users (clients) to interact with oracle*****
+
+#### Consult minimum payment of the oracle
+  entrypoint queryFee(o : oracle(string, string)) : int = 				//oracle address 				
+    Oracle.query_fee(o)
+
+#### Function that executes the query to the oracle and receives the commission for the query
+  payable stateful entrypoint createQuery(      					
+                                          o    : oracle(string, string),    		//oracle address
+                                          q    : string,      				//question
+                                          qfee : int,         				//fee
+                                          qttl : int,         				//last height oracle to post a reply
+                                          rttl : int) : oracle_query(string, string) =  //time the response stays on the chain
+    require(qfee =< Call.value, "insufficient value for qfee")    			//check the fee
+    let query : oracle_query(string, string) = Oracle.query(o, q, qfee, RelativeTTL(qttl), RelativeTTL(rttl))    //records the query to the oracle, shows the id
+    let query_answer = get_answer(q)
+    Oracle.respond(o, query, query_answer)
+    put(state{id_query[Call.caller] = query })
+    query
+
+
+#### Query function if there is a query response to the oracle
+  entrypoint get_answer(stranswer : string) =  						//Check if there is an answer
+    switch(Map.lookup(stranswer, state.question_answer))
+      None    => abort("Not registered")
+      Some(x) => x
+
+#### Function that Gets the answer to the oracle question
+  stateful entrypoint respond(  
+                              o    : oracle(string, string),  				//oracle address
+                              q    : oracle_query(string, string),  			//id of query in oracle
+                              r    : string) =  					//reply
+    Oracle.respond(o, q, r)        							//reply
+
+### ************************************************************************************************************
+### *****General Use Functions*****
+### ************************************************************************************************************
+### *****Functions that allow both the operator and the users of the oracle to obtain interesting information***
+
+#### Function that returns True if the oracle exists and has the expected type
+  entrypoint getCheck(
+                       o : oracle(string, string)) =  					//oracle address
+    Oracle.check(o)  									//show the answer
+
+#### Function that shows the address of the contract creator
+  stateful entrypoint contract_creator() = 
+    Contract.creator
+### ************************************************************************************************************
+### Here is what the complete contract looks like:
+### ************************************************************************************************************
+contract Source =
+#### Key values ​​to store //
+  record state = {  									
+    source_oracle : map(address, oracle(string, string)),
+    id_query : map(address, oracle_query(string, string)),
+    question_answer : map(string, string)}
+
+#### Función init //
+  stateful entrypoint init() : state =  						 
+    { source_oracle = {},
+      id_query = {}, 
+      question_answer  = {} }
+
+#### Function to register the Oracle//
+  stateful entrypoint registerOracle(      						
+                           qfee : int,     						//Minimum payment fee
+                           rttl : int) : oracle(string, string) =   			//oracle expiration time blocks
+    let register: oracle(string, string) =  Oracle.register(Contract.address, qfee, RelativeTTL(rttl))
+    put(state{ source_oracle[Contract.address] = register })
+    register
+
+#### Function to Consult oracle address//
+  entrypoint get_oracle(): oracle(string, string) =  					
+    switch(Map.lookup(Contract.address, state.source_oracle))
+      None    => abort("Not registered")
+      Some(x) => x
+
+#### Function to Extend Oracle Time//
+  stateful entrypoint extendOracle(  							
+                                    o   : oracle(string, string),			//oracle address
+                                    ttl : int) : unit =					//oracle expiration time blocks 
+    Oracle.extend(o, RelativeTTL(ttl))
+
+#### Function that records the oracle's question and answer//
+  payable stateful entrypoint quest_answer(quest : string, answ : string) : bool = 
+    let val = Call.value
+    if(val > 0)
+      false
+    else
+      put(state{question_answer[quest] = answ })
+      true
+
+#### Function to check the question that was asked to the oracle according to id//
+  entrypoint getQuestion(  								
+                          o : oracle(string, string),    				//oracle address
+                          q : oracle_query(string, string)) : string =    		//id of query in oracle
+    Oracle.get_question(o, q)      							//show the question
+
+#### Query function if the question has an answer//
+  entrypoint hasAnswer(  								
+                       o : oracle(string, string),
+                       q : oracle_query(string, string)) =
+    switch(Oracle.get_answer(o, q))
+      None    => false
+      Some(_) => true
+
+#### Function that shows the answer to a question//
+  entrypoint getAnswer(  
+                       o : oracle(string, string),  					//oracle address
+                       q : oracle_query(string, string)) : option(string) =    		//id of query in oracle
+    Oracle.get_answer(o, q)  								//show the answer
+
+#### Function that Obtains Balance of the contract//
+  stateful entrypoint contract_balance() = 
+    Contract.balance
+
+#### Function Query Id of the query associated with an address//
+  entrypoint get_query(): oracle_query(string, string) =  
+    switch(Map.lookup(Call.caller, state.id_query))
+      None    => abort("No query")
+      Some(x) => x
+
+#### Consult minimum payment of the oracle//
+  entrypoint queryFee(o : oracle(string, string)) : int = 				//oracle address 				
+    Oracle.query_fee(o)
+
+#### Function that executes the query to the oracle and receives the commission for the query//
+  payable stateful entrypoint createQuery(      					
+                                          o    : oracle(string, string),    		//oracle address
+                                          q    : string,      				//question
+                                          qfee : int,         				//fee
+                                          qttl : int,         				//last height oracle to post a reply
+                                          rttl : int) : oracle_query(string, string) =  //time the response stays on the chain
+    require(qfee =< Call.value, "insufficient value for qfee")    			//check the fee
+    let query : oracle_query(string, string) = Oracle.query(o, q, qfee, RelativeTTL(qttl), RelativeTTL(rttl))    //records the query to the oracle, shows the id
+    let query_answer = get_answer(q)
+    Oracle.respond(o, query, query_answer)
+    put(state{id_query[Call.caller] = query })
+    query
+
+
+#### Query function if there is a query response to the oracle//
+  entrypoint get_answer(stranswer : string) =  						//Check if there is an answer
+    switch(Map.lookup(stranswer, state.question_answer))
+      None    => abort("Not registered")
+      Some(x) => x
+
+#### Function that Gets the answer to the oracle question//
+  stateful entrypoint respond(  
+                              o    : oracle(string, string),  				//oracle address
+                              q    : oracle_query(string, string),  			//id of query in oracle
+                              r    : string) =  					//reply
+    Oracle.respond(o, q, r)        							//reply
+
+#### Function that returns True if the oracle exists and has the expected type//
+  entrypoint getCheck(
+                       o : oracle(string, string)) =  					//oracle address
+    Oracle.check(o)  									//show the answer
+
+#### Function that shows the address of the contract creator//
+  stateful entrypoint contract_creator() = 
+    Contract.creator
+
+### ************************************************************************************************************
+### Recommendation
+### ************************************************************************************************************
+To interact with the contract described in the tutorial, you can use the contract editor through the following 
+URL: /http://studio.aepps.com/, 
+or the GUI designed for it, the step by step is in the following document Step_by_step_oracle.md
+
+
+
+
+
+
+
+
+
+
