@@ -79,9 +79,9 @@ Functions that allow the oracle operator to register, configure and keep the ora
 ---
 ~~~
   entrypoint getQuestion(  								
-                          o : oracle(string, string),    				              //oracle address
-                          q : oracle_query(string, string)) : string =    		//id of query in oracle
-    Oracle.get_question(o, q)      							                              //show the question
+                          o : oracle(string, string),    				         //oracle address
+                          q : oracle_query(string, string)) : string =    //id of query in oracle
+    Oracle.get_question(o, q)      							                         //show the question
 ~~~
 ---
 ##### Query function if the question has an answer
@@ -99,8 +99,8 @@ Functions that allow the oracle operator to register, configure and keep the ora
 ---
 ~~~
   entrypoint getAnswer(  
-                       o : oracle(string, string),  					                     //oracle address
-                       q : oracle_query(string, string)) : option(string) =    		//id of query in oracle
+                       o : oracle(string, string),  					                 //oracle address
+                       q : oracle_query(string, string)) : option(string) =    //id of query in oracle
     Oracle.get_answer(o, q)  								//show the answer
 ~~~
 ---
@@ -162,9 +162,9 @@ Functions that allow users (clients) to interact with oracle
 ~~~
   stateful entrypoint respond(  
                               o    : oracle(string, string),  				//oracle address
-                              q    : oracle_query(string, string),  			//id of query in oracle
-                              r    : string) =  					//reply
-    Oracle.respond(o, q, r)        							//reply
+                              q    : oracle_query(string, string),  	//id of query in oracle
+                              r    : string) =  					            //reply
+    Oracle.respond(o, q, r)        							                      //reply
 ~~~
 ---
 
@@ -175,8 +175,8 @@ Functions that allow both the operator and the users of the oracle to obtain int
 ---
 ~~~
   entrypoint getCheck(
-                       o : oracle(string, string)) =  					//oracle address
-    Oracle.check(o)  									//show the answer
+                       o : oracle(string, string)) =  		//oracle address
+    Oracle.check(o)  									                    //show the answer
 ~~~
 ---
 ##### Function that shows the address of the contract creator
@@ -226,9 +226,9 @@ contract Source =
       true
 
   entrypoint getQuestion(  								
-                o : oracle(string, string),    		            //oracle address
+                o : oracle(string, string),    		              //oracle address
                 q : oracle_query(string, string)) : string =    //id of query in oracle
-    Oracle.get_question(o, q)      							    //show the question
+    Oracle.get_question(o, q)      							                //show the question
 
   entrypoint hasAnswer(  								
                        o : oracle(string, string),
@@ -238,9 +238,9 @@ contract Source =
       Some(_) => true
 
   entrypoint getAnswer(  
-        o : oracle(string, string),  					        //oracle address
+        o : oracle(string, string),  					                  //oracle address
         q : oracle_query(string, string)) : option(string) =    //id of query in oracle
-    Oracle.get_answer(o, q)  								   //show the answer
+    Oracle.get_answer(o, q)  								                    //show the answer
 
   stateful entrypoint contract_balance() = 
     Contract.balance
@@ -266,20 +266,20 @@ contract Source =
     put(state{id_query[Call.caller] = query })
     query
 
-  entrypoint get_answer(stranswer : string) =  	//Check if there is an answer
+  entrypoint get_answer(stranswer : string) =  	    //Check if there is an answer
     switch(Map.lookup(stranswer, state.question_answer))
       None    => abort("Not registered")
       Some(x) => x
 
   stateful entrypoint respond(  
-            o    : oracle(string, string),  	   //oracle address
-            q    : oracle_query(string, string),   //id of query in oracle
-            r    : string) =  			           //reply
-    Oracle.respond(o, q, r)        				   //reply
+            o    : oracle(string, string),  	      //oracle address
+            q    : oracle_query(string, string),    //id of query in oracle
+            r    : string) =  			                //reply
+    Oracle.respond(o, q, r)        				          //reply
 
   entrypoint getCheck(
                     o : oracle(string, string)) =  	    //oracle address
-    Oracle.check(o)  									//show the answer
+    Oracle.check(o)  									                  //show the answer
 
   stateful entrypoint contract_creator() = 
     Contract.creator
