@@ -58,8 +58,8 @@ Functions that allow the oracle operator to register, configure and keep the ora
 ---
 ~~~
   stateful entrypoint extendOracle(  							
-                                    o   : oracle(string, string),	  //oracle address
-                                    ttl : int) : unit =					   //oracle expiration time blocks 
+                                  o   : oracle(string, string),	  //oracle address
+                                  ttl : int) : unit =					 //oracle expiration time blocks 
     Oracle.extend(o, RelativeTTL(ttl))
 ~~~
 ---
