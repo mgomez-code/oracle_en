@@ -4,11 +4,16 @@
 
 Example of a smart contract that allows you to interact with the operating functions of an oracle. Allowing you to manage oracle questions and answers
 ## ********************************************************************************************************************************
+## Code in Sophia
+First, the functions used by the operator of the oracle to register, configure and maintain it are shown.
+Secondly, the functions that allow users (clients) to request the information provided by Oracle are shown. 
+To obtain this information, the client must cancel a fee.
+
+## ************************************************************************************************************
 ## *****Key values ​​to store*****
-## ********************************************************************************************************************************
+## ************************************************************************************************************
 ## *****In this section all the variables of interest for the operation of the contract are declared*****
 
-##  Key values ​​to store 
 ### Step by Step
 #####  1.- Get the baseaepp  from any of the following links:
   - [Google Play](https://play.google.com/store/apps/details?id=com.aeternity.base)
