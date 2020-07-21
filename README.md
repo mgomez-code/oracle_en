@@ -176,7 +176,7 @@ Functions that allow both the operator and the users of the oracle to obtain int
 ~~~
   entrypoint getCheck(
                        o : oracle(string, string)) =  //oracle address
-    Oracle.check(o)  									                //show the answer
+    Oracle.check(o)  				//show the answer
 ~~~
 ---
 ##### Function that shows the address of the contract creator
@@ -278,8 +278,8 @@ contract Source =
     Oracle.respond(o, q, r)        				          //reply
 
   entrypoint getCheck(
-                    o : oracle(string, string)) =  	    //oracle address
-    Oracle.check(o)  									                  //show the answer
+                    o : oracle(string, string)) =  	//oracle address
+    Oracle.check(o)  									             //show the answer
 
   stateful entrypoint contract_creator() = 
     Contract.creator
