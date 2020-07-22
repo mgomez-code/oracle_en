@@ -31,12 +31,12 @@ In this section the contract is initialized and the initial values ​​are giv
       question_answer  = {} }
 ~~~
 ---
-## Oracle Operator Functions
+#### Oracle Operator Functions
 Functions that allow the oracle operator to register, configure and keep the oracle operational
 
-## Register the Oracle
-
+#### Register the Oracle
 This code session allows the oracle operator to register the oracle, for this it sends the necessary arguments to the function, in this case the qfee that refers to the commission that users must pay for the query and the rttl that it represents the expiration time of the oracle.
+
 ---
 ~~~
   stateful entrypoint registerOracle(      						
@@ -56,8 +56,9 @@ This code session allows the oracle operator to register the oracle, for this it
       Some(x) => x
 ~~~
 ---
-## Extend Oracle
+#### Extend Oracle
 This code session allows the oracle operator to extend the life time of the oracle, for this it sends the function the necessary arguments, in this case the oracle address: which represents the address of the oracle and ttl: which represents the time of oracle extension.
+
 ---
 ~~~
   stateful entrypoint extendOracle(  							
@@ -68,6 +69,7 @@ This code session allows the oracle operator to extend the life time of the orac
 ---
 ##### Records the oracle's question and answer
 This code session allows the operator of the oracle to register the questions and answers, for this it sends the necessary arguments to the function, in this case quest: that represents the question and answ: that represents the answer that the oracle will send to the users when executing the query.
+
 ---
 ~~~
   payable stateful entrypoint quest_answer(quest : string, answ : string) : bool = 
@@ -110,6 +112,7 @@ This code session allows the operator of the oracle to register the questions an
 ---
 ##### Obtains Balance of the contract
 This session of the code allows the oracle operator to consume the balance of the contract, and shows the total amount in token products of the commissions that have been paid by the users who have made use of the oracle services.
+
 ---
 ~~~
   stateful entrypoint contract_balance() = 
@@ -138,6 +141,7 @@ Functions that allow users (clients) to interact with oracle
 ---
 ##### Executes the query to the oracle and receives the commission for the query
 This session of the code allows the user of the oracle, to consume the value of the commission that he must pay to obtain the information that is available in the oracle. The arguments that must be sent to this function by users are the question and the payment. In this function it is verified that the amount of the payment corresponds to that canceled by the user.
+
 ---
 ~~~
   payable stateful entrypoint createQuery(      					
