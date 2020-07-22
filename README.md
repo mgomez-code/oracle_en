@@ -31,7 +31,7 @@ In this section the contract is initialized and the initial values ​​are giv
       question_answer  = {} }
 ~~~
 ---
-#### Oracle Operator Functions
+## Oracle Operator Functions
 Functions that allow the oracle operator to register, configure and keep the oracle operational
 
 #### Register the Oracle
