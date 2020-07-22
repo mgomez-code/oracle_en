@@ -34,7 +34,8 @@ In this section the contract is initialized and the initial values ​​are giv
 ## Oracle Operator Functions
 Functions that allow the oracle operator to register, configure and keep the oracle operational
 
-##### Register the Oracle
+## Register the Oracle
+
 This code session allows the oracle operator to register the oracle, for this it sends the necessary arguments to the function, in this case the qfee that refers to the commission that users must pay for the query and the rttl that it represents the expiration time of the oracle.
 ---
 ~~~
@@ -55,7 +56,7 @@ This code session allows the oracle operator to register the oracle, for this it
       Some(x) => x
 ~~~
 ---
-##### Extend Oracle
+## Extend Oracle
 This code session allows the oracle operator to extend the life time of the oracle, for this it sends the function the necessary arguments, in this case the oracle address: which represents the address of the oracle and ttl: which represents the time of oracle extension.
 ---
 ~~~
