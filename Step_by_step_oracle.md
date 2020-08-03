@@ -18,7 +18,7 @@ Example of a smart contract that allows you to interact with the operating funct
         5.4- Click on the button identified as Top UP.
 #####  6.- Verify the tokens in the base aepp wallet.
 #####  7.- Enter the aepp base browser and copy the following
-url:(https://mgomez-code.github.io/oracle/)
+url:(mgomez-code.github.io/oracle_en/)
 #####  8.- Press the command button identified as Fee Query. If the value of the Fee is obtained. Go to step 12
 #####  9.- If the Fee value is not obtained, it indicates that at the time of the test the TTL of the oracle has expired.
 #####  10.- Press the in the browser menu located in the upper right and we update the page.
