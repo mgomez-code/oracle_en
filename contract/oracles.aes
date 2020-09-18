@@ -1,13 +1,15 @@
 contract Oracles =
 
-  record state = {  									// Key values ​​to save
-    weather_oracle : oracle(string, string),
+contract Source =
+  record state = {  									
+    source_oracle : map(address, oracle(string, string)),
     id_query : map(address, oracle_query(string, string)),
     question_answer : map(string, string)}
 
-  stateful entrypoint init() : state =  						//Start Function
-    let weather_oracle : oracle(string, string) = registerOracle(10,200)
-    { weather_oracle = weather_oracle, id_query = {}, question_answer  = {} }
+  stateful entrypoint init() : state =  						 
+    { source_oracle = {},
+      id_query = {}, 
+      question_answer  = {} }
 
   stateful entrypoint register_oracle(      						// Function to Register the Oracle of the Contract
                            qfee : int,     						//Minimum payment fee
