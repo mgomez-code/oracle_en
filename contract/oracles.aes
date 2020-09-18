@@ -9,7 +9,7 @@ contract Oracles =
     let weather_oracle : oracle(string, string) = registerOracle(10,200)
     { weather_oracle = weather_oracle, id_query = {}, question_answer  = {} }
 
-  stateful entrypoint registerOracle(      						// Function to Register the Oracle of the Contract
+  stateful entrypoint register_oracle(      						// Function to Register the Oracle of the Contract
                            qfee : int,     						//Minimum payment fee
                            rttl : int) : oracle(string, string) =   			//oracle expiration time blocks
     Oracle.register(Contract.address, qfee, RelativeTTL(rttl))
@@ -38,7 +38,7 @@ contract Oracles =
   entrypoint queryFee(o : oracle(string, string)) : int =  					//get minimum payment of oracle
     Oracle.query_fee(o)
 
-  payable stateful entrypoint createQuery(      						//Make the consultation to the oracle
+  payable stateful entrypoint create_Query(      						//Make the consultation to the oracle
                                           o    : oracle(string, string),    			//oracle direction
                                           q    : string,      					//question
                                           qfee : int,         					//fee
@@ -51,7 +51,7 @@ contract Oracles =
     put(state{id_query[Call.caller] = query })
     query
 
-  stateful entrypoint extendOracle(  				//Extend the time of the oracle
+  stateful entrypoint extend_oracle(  				//Extend the time of the oracle
                                     o   : oracle(string, string),
                                     ttl : int) : unit =
     Oracle.extend(o, RelativeTTL(ttl))
@@ -62,19 +62,19 @@ contract Oracles =
                               r    : string) =  //reply
     Oracle.respond(o, q, r)        
 
-  entrypoint getQuestion(  //see the question they asked the oracle according to id
+  entrypoint get_question(  //see the question they asked the oracle according to id
                           o : oracle(string, string),    //oracle direction
                           q : oracle_query(string, string)) : string =    //id of query in oracle
     Oracle.get_question(o, q)      
 
-  entrypoint hasAnswer(  //Check if the question has an answer
+  entrypoint has_answer(  //Check if the question has an answer
                        o : oracle(string, string),
                        q : oracle_query(string, string)) =
     switch(Oracle.get_answer(o, q))
       None    => false
       Some(_) => true
 
-  entrypoint getAnswer(  //Show the answer to a question
+  entrypoint get_answer(  //Show the answer to a question
                        o : oracle(string, string),  //oracle direction
                        q : oracle_query(string, string)) : option(string) =    //id of query in oracle
     Oracle.get_answer(o, q)
