@@ -270,7 +270,7 @@ $('#createQueryBtn').click(async function(){
 	await contractCall('create_query', [address,string,fee,1,1], fee);
 	const consul = await callStatic('get_query',[]);
 	document.getElementById('idquery').value = consul;
-	const result = await callStatic('get_answer',[address,consul]);
-	document.getElementById('messages4').value = result.Some[0];
+	const result = await callStatic('get_answer',[string]);
+	document.getElementById('messages4').value = result;
 	$("#loader").hide();
 });
