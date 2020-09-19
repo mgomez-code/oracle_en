@@ -10,24 +10,27 @@ contract Oracles =
       id_query = {}, 
       question_answer  = {} }
 
-  stateful entrypoint registerOracle(      						
-        qfee : int,     						 //Minimum payment fee
-        rttl : int) : oracle(string, string) =   //oracle expiration time blocks
-    let register: oracle(string, string) =  Oracle.register(Contract.address, qfee, RelativeTTL(rttl))
-    put(state{ source_oracle[Contract.address] = register })
-    register
+  stateful entrypoint register_oracle(      						// Function to Register the Oracle of the Contract
+                           qfee : int,     						//Minimum payment fee
+                           rttl : int) : oracle(string, string) =   			//oracle expiration time blocks
+    Oracle.register(Contract.address, qfee, RelativeTTL(rttl))
 
-  entrypoint get_oracle(): oracle(string, string) =  					
+  entrypoint get_oracle(): oracle(string, string) = 					 //Consult direction of the oracle
     switch(Map.lookup(Contract.address, state.source_oracle))
       None    => abort("Not registered")
       Some(x) => x
+      
+  entrypoint get_query(): oracle_query(string, string) =  				//Get query id
+    switch(Map.lookup(Call.caller, state.id_query))
+      None    => abort("No query")
+      Some(x) => x
 
-  stateful entrypoint extendOracle(  							
-                                o   : oracle(string, string),	//oracle address
-                                ttl : int) : unit =		//oracle expiration time blocks 
-    Oracle.extend(o, RelativeTTL(ttl))
+  entrypoint get_answer(stranswer : string) =  						//Check if there is an answer
+    switch(Map.lookup(stranswer, state.question_answer))
+      None    => abort("No Resitrado")
+      Some(x) => x
 
-  payable stateful entrypoint quest_answer(quest : string, answ : string) : bool = 
+  payable stateful entrypoint quest_answer(quest : string, answ : string) : bool =  		//Record response function
     let val = Call.value
     if(val > 0)
       false
@@ -35,70 +38,57 @@ contract Oracles =
       put(state{question_answer[quest] = answ })
       true
 
-  entrypoint getQuestion(  								
-                o : oracle(string, string),    		            //oracle address
-                q : oracle_query(string, string)) : string =    //id of query in oracle
-    Oracle.get_question(o, q)      							    //show the question
+  entrypoint query_fee(o : oracle(string, string)) : int =  					//get minimum payment of oracle
+    Oracle.query_fee(o)
 
-  entrypoint hasAnswer(  								
+  payable stateful entrypoint create_query(      						//Make the consultation to the oracle
+                                          o    : oracle(string, string),    			//oracle direction
+                                          q    : string,      					//question
+                                          qfee : int,         					//fee
+                                          qttl : int,         					//TTL of oracle
+                                          rttl : int) : oracle_query(string, string) =    	//rTTL of oracle
+    require(qfee =< Call.value, "insufficient value for qfee")    //verifica el pago
+    let query : oracle_query(string, string) = Oracle.query(o, q, qfee, RelativeTTL(qttl), RelativeTTL(rttl))    //records the query to the oracle, shows the id
+    let query_answer = get_answer(q)
+    Oracle.respond(o, query, query_answer)
+    put(state{id_query[Call.caller] = query })
+    query
+
+  stateful entrypoint extend_oracle(  				//Extend the time of the oracle
+                                    o   : oracle(string, string),
+                                    ttl : int) : unit =
+    Oracle.extend(o, RelativeTTL(ttl))
+
+  stateful entrypoint respond(  					// Add the answer to the question they ask the oracle
+                              o    : oracle(string, string),  //oracle direction
+                              q    : oracle_query(string, string),  //id of query in oracle
+                              r    : string) =  //reply
+    Oracle.respond(o, q, r)        
+
+  entrypoint get_question(  //see the question they asked the oracle according to id
+                          o : oracle(string, string),    //oracle direction
+                          q : oracle_query(string, string)) : string =    //id of query in oracle
+    Oracle.get_question(o, q)      
+
+  entrypoint has_answer(  //Check if the question has an answer
                        o : oracle(string, string),
                        q : oracle_query(string, string)) =
     switch(Oracle.get_answer(o, q))
       None    => false
       Some(_) => true
 
-  entrypoint getAnswer(  
-        o : oracle(string, string),  					        //oracle address
-        q : oracle_query(string, string)) : option(string) =    //id of query in oracle
-    Oracle.get_answer(o, q)  								   //show the answer
-
-  stateful entrypoint contract_balance() = 
+  entrypoint get__answer(  //Show the answer to a question
+                       o : oracle(string, string),  //oracle direction
+                       q : oracle_query(string, string)) : option(string) =    //oracle direction
+    Oracle.get_answer(o, q)
+    
+  entrypoint contract_balance() = 
     Contract.balance
-
-  entrypoint get_query(): oracle_query(string, string) =  
-    switch(Map.lookup(Call.caller, state.id_query))
-      None    => abort("No query")
-      Some(x) => x
-
-  entrypoint queryFee(o : oracle(string, string)) : int = 
-    Oracle.query_fee(o)			
-
-  payable stateful entrypoint createQuery(      					
-                                          o    : oracle(string, string),    	//oracle address
-                                          q    : string,      				//question
-                                          qfee : int,         				//fee
-                                          qttl : int,         				//last height oracle to post a reply
-                                          rttl : int) : oracle_query(string, string) =  //time stays on the chain
-    require(qfee =< Call.value, "insufficient value for qfee")    	//check the fee
-    let query : oracle_query(string, string) = Oracle.query(o, q, qfee, RelativeTTL(qttl), RelativeTTL(rttl))
-    let query_answer = get_answer(q)
-    Oracle.respond(o, query, query_answer)
-    put(state{id_query[Call.caller] = query })
-    query
-
-  entrypoint get_answer(stranswer : string) =  	//Check if there is an answer
-    switch(Map.lookup(stranswer, state.question_answer))
-      None    => abort("Not registered")
-      Some(x) => x
-
-  stateful entrypoint respond(  
-            o    : oracle(string, string),  	   //oracle address
-            q    : oracle_query(string, string),   //id of query in oracle
-            r    : string) =  			           //reply
-    Oracle.respond(o, q, r)        				   //reply
-
-  entrypoint getCheck(
-                    o : oracle(string, string)) =  	    //oracle address
-    Oracle.check(o)  									//show the answer
-
-  stateful entrypoint contract_creator() = 
-    Contract.creator
-
 `;
 
 //Address of the  smart contract on the testnet of the aeternity blockchain
 //Dirección del contrato inteligente en el testnet de la blockchain de aeternity
-const contractAddress = 'ct_WMdMuoDod4tgT9VLBe1gjqi5j8kKy3AuYsJKNDPCCPEhudWf6';
+const contractAddress = 'ct_vqcxaYWERFv7u5GUw1j36CBuDqL3ySnEaK1pjEnUHE8mKTedK';
 
 //Create variable for client so it can be used in different functions
 //Crear la variable cliente para las funciones
@@ -159,14 +149,14 @@ window.addEventListener('load', async () => {
 	$("#loader").hide();
 });
 
-//If someone clicks register Oracle,  execute queryFee
-//Si alguien hace clic para registrar oráculo, ejecute registerOracle
+//If someone clicks register Oracle,  execute register_oracle
+//Si alguien hace clic para registrar oráculo, ejecute register_oracle
 $('#registerOracleBtn').click(async function(){
 	$("#loader").show();
 	client = await Ae.Aepp();
 	const qfee = ($('#qfee').val());
 	const ttl = ($('#ttl').val());
-	const consul = await contractCall('registerOracle', [qfee,ttl], 0);
+	const consul = await contractCall('register_oracle', [qfee,ttl], 0);
 	if(consul){document.getElementById('messages').value = 'registered';}
 	$("#loader").hide();
 });
@@ -182,15 +172,15 @@ $('#addressOracleBtn').click(async function(){
 	$("#loader").hide();
 });
 
-//If someone clicks extend Oracle,  execute queryFee
-//Si alguien hace clic para externder oráculo, ejecute extendOracle
+//If someone clicks extend Oracle,  execute extend_oracle
+//Si alguien hace clic para externder oráculo, ejecute extend_oracle
 $('#extendOracleBtn').click(async function(){
 	$("#loader").show();
 	client = await Ae.Aepp();
 	const address = ($('#messages').val());
 	const qfee = ($('#qfee').val());
 	const ttl = ($('#ttl').val());
-	const consul = await contractCall('extendOracle', [address,ttl], 0);
+	const consul = await contractCall('extend_oracle', [address,ttl], 0);
 	if(consul){document.getElementById('messages').value = 'extend';}
 	$("#loader").hide();
 });
@@ -207,38 +197,38 @@ $('#quest_answerBtn').click(async function(){
 	$("#loader").hide();
 });
 
-//If someone clicks to consult Question,  execute getQuestion
-//Si alguien hace clic para consultar pregunta, ejecute getQuestion
+//If someone clicks to consult Question,  execute get_question
+//Si alguien hace clic para consultar pregunta, ejecute get_question
 $('#getQuestionBtn').click(async function(){
 	$("#loader").show();
 	const address = ($('#address').val());
 	const idquery = ($('#idquery').val());
 	client = await Ae.Aepp();
-	const consul = await callStatic('getQuestion',[address,idquery]);
+	const consul = await callStatic('get_question',[address,idquery]);
 	document.getElementById('messages2').value = consul;
 	$("#loader").hide();
 });
 
-//If someone clicks to check if you have an answer,  execute hasAnswer
-//Si alguien hace clic para consultar si tiene respuesta, ejecute hasAnswer
+//If someone clicks to check if you have an answer,  execute has_answer
+//Si alguien hace clic para consultar si tiene respuesta, ejecute has_answer
 $('#hasAnswerBtn').click(async function(){
 	$("#loader").show();
 	const address = ($('#address').val());
 	const idquery = ($('#idquery').val());
 	client = await Ae.Aepp();
-	const consul = await callStatic('hasAnswer',[address,idquery]);
+	const consul = await callStatic('has_answer',[address,idquery]);
 	document.getElementById('messages2').value = consul;
 	$("#loader").hide();
 });
 
-//If someone clicks to consult Answer,  execute getAnswer
-//Si alguien hace clic para consultar respuesta, ejecute getAnswer
+//If someone clicks to consult Answer,  execute get_answer
+//Si alguien hace clic para consultar respuesta, ejecute get_answer
 $('#getAnswerBtn').click(async function(){
 	$("#loader").show();
 	const address = ($('#address').val());
 	const idquery = ($('#idquery').val());
 	client = await Ae.Aepp();
-	const consul = await callStatic('getAnswer',[address,idquery]);
+	const consul = await callStatic('get_answer',[address,idquery]);
 	document.getElementById('messages2').value = consul.Some[0];
 	$("#loader").hide();
 });
@@ -253,19 +243,19 @@ $('#balanceBtn').click(async function(){
 	$("#loader").hide();
 });
 
-//If someone clicks to consult Fee Query,  execute queryFee
-//Si alguien hace clic para consultar Fee Query, ejecute queryFee
+//If someone clicks to consult Fee Query,  execute query_fee
+//Si alguien hace clic para consultar Fee Query, ejecute query_fee
 $('#queryFeeBtn').click(async function(){
 	$("#loader").show();
 	client = await Ae.Aepp();
 	const address = ($('#address').val());
-	const consul = await callStatic('queryFee',[address]);
+	const consul = await callStatic('query_fee',[address]);
 	document.getElementById('fee').value = consul;
 	$("#loader").hide();
 });
 
-//If someone clicks to create Query,  execute createQuery
-//Si alguien hace clic para crear query, ejecute createQuery
+//If someone clicks to create Query,  execute create_query
+//Si alguien hace clic para crear query, ejecute create_query
 $('#createQueryBtn').click(async function(){
 	$("#loader").show();
 	//Create new variable for get the values from the input fields
@@ -275,13 +265,10 @@ $('#createQueryBtn').click(async function(){
 		  fee = ($('#fee').val());
 	//Make the contract call to consult the oracle with the newly passed values
 	//Llame al contrato para consultar el oráculo con los valores recibidos
-	await contractCall('createQuery', [address,string,fee,1,1], fee);
+	await contractCall('create_query', [address,string,fee,1,1], fee);
 	const consul = await callStatic('get_query',[]);
 	document.getElementById('idquery').value = consul;
-	const result = await callStatic('getAnswer',[address,consul]);
+	const result = await callStatic('get_answer',[address,consul]);
 	document.getElementById('messages4').value = result.Some[0];
 	$("#loader").hide();
 });
-
-
-
