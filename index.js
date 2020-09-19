@@ -13,7 +13,9 @@ contract Oracles =
   stateful entrypoint register_oracle(      						// Function to Register the Oracle of the Contract
                            qfee : int,     						//Minimum payment fee
                            rttl : int) : oracle(string, string) =   			//oracle expiration time blocks
-    Oracle.register(Contract.address, qfee, RelativeTTL(rttl))
+    let register: oracle(string, string) =  Oracle.register(Contract.address, qfee, RelativeTTL(rttl))
+    put(state{ source_oracle[Contract.address] = register })
+    register
 
   entrypoint get_oracle(): oracle(string, string) = 					 //Consult direction of the oracle
     switch(Map.lookup(Contract.address, state.source_oracle))
@@ -88,7 +90,7 @@ contract Oracles =
 
 //Address of the  smart contract on the testnet of the aeternity blockchain
 //Dirección del contrato inteligente en el testnet de la blockchain de aeternity
-const contractAddress = 'ct_vqcxaYWERFv7u5GUw1j36CBuDqL3ySnEaK1pjEnUHE8mKTedK';
+const contractAddress = 'ct_15XeDq8XMoNkYpC3xSRCrtoJQpH4nfbT4tP5cD3yb29172wTd';
 
 //Create variable for client so it can be used in different functions
 //Crear la variable cliente para las funciones
