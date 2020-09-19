@@ -248,7 +248,7 @@ contract Source =
       None    => false
       Some(_) => true
 
-  entrypoint get_answer(  
+  entrypoint get__answer(  
         o : oracle(string, string),  					        //oracle address
         q : oracle_query(string, string)) : option(string) =    //id of query in oracle
     Oracle.get_answer(o, q)  								   //show the answer
@@ -261,7 +261,8 @@ contract Source =
       None    => abort("No query")
       Some(x) => x
 
-  entrypoint query_fee(o : oracle(string, string)) : int = 	//oracle address 			Oracle.query_fee(o)
+  entrypoint query_fee(o : oracle(string, string)) : int = 	//oracle address 			
+    Oracle.query_fee(o)
 
   payable stateful entrypoint create_query(      					
         o    : oracle(string, string),    	//oracle address
