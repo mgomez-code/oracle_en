@@ -1,6 +1,4 @@
 contract Oracles =
-
-contract Source =
   record state = {  									
     source_oracle : map(address, oracle(string, string)),
     id_query : map(address, oracle_query(string, string)),
@@ -17,8 +15,10 @@ contract Source =
     Oracle.register(Contract.address, qfee, RelativeTTL(rttl))
 
   entrypoint get_oracle(): oracle(string, string) = 					 //Consult direction of the oracle
-    state.weather_oracle
-
+    switch(Map.lookup(Contract.address, state.source_oracle))
+      None    => abort("Not registered")
+      Some(x) => x
+      
   entrypoint get_query(): oracle_query(string, string) =  				//Get query id
     switch(Map.lookup(Call.caller, state.id_query))
       None    => abort("No query")
@@ -76,7 +76,7 @@ contract Source =
       None    => false
       Some(_) => true
 
-  entrypoint get_answer(  //Show the answer to a question
+  entrypoint get__answer(  //Show the answer to a question
                        o : oracle(string, string),  //oracle direction
-                       q : oracle_query(string, string)) : option(string) =    //id of query in oracle
+                       q : oracle_query(string, string)) : option(string) =    //oracle direction
     Oracle.get_answer(o, q)
