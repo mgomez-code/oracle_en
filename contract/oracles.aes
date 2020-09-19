@@ -37,10 +37,10 @@ contract Oracles =
       put(state{question_answer[quest] = answ })
       true
 
-  entrypoint queryFee(o : oracle(string, string)) : int =  					//get minimum payment of oracle
+  entrypoint query_fee(o : oracle(string, string)) : int =  					//get minimum payment of oracle
     Oracle.query_fee(o)
 
-  payable stateful entrypoint create_Query(      						//Make the consultation to the oracle
+  payable stateful entrypoint create_query(      						//Make the consultation to the oracle
                                           o    : oracle(string, string),    			//oracle direction
                                           q    : string,      					//question
                                           qfee : int,         					//fee
@@ -80,3 +80,6 @@ contract Oracles =
                        o : oracle(string, string),  //oracle direction
                        q : oracle_query(string, string)) : option(string) =    //oracle direction
     Oracle.get_answer(o, q)
+    
+  entrypoint contract_balance() = 
+    Contract.balance
