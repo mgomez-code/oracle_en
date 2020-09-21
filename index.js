@@ -197,7 +197,7 @@ $('#quest_answerBtn').click(async function(){
 	client = await Ae.Aepp();
 	const question = ($('#question').val());
 	const answer = ($('#answer').val());
-	const consul = await callStatic('quest_answer', [question,answer]);
+	const consul = await contractCall('quest_answer', [question,answer]);
 	if(consul){document.getElementById('messages').value = 'registered';}
 	$("#loader").hide();
 });
