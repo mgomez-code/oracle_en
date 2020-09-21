@@ -154,14 +154,14 @@ window.addEventListener('load', async () => {
 	$("#loader").hide();
 });
 
-//If someone clicks register Oracle,  execute register_oracle
-//Si alguien hace clic para registrar oráculo, ejecute register_oracle
+//If someone clicks register Oracle,  execute queryFee
+//Si alguien hace clic para registrar oráculo, ejecute registerOracle
 $('#registerOracleBtn').click(async function(){
 	$("#loader").show();
 	client = await Ae.Aepp();
 	const qfee = ($('#qfee').val());
 	const ttl = ($('#ttl').val());
-	const consul = await contractCall('register_oracle', [qfee,ttl], 0);
+	const consul = await contractCall('registerOracle', [qfee,ttl], 0);
 	if(consul){document.getElementById('messages').value = 'registered';}
 	$("#loader").hide();
 });
@@ -177,15 +177,15 @@ $('#addressOracleBtn').click(async function(){
 	$("#loader").hide();
 });
 
-//If someone clicks extend Oracle,  execute extend_oracle
-//Si alguien hace clic para externder oráculo, ejecute extend_oracle
+//If someone clicks extend Oracle,  execute queryFee
+//Si alguien hace clic para externder oráculo, ejecute extendOracle
 $('#extendOracleBtn').click(async function(){
 	$("#loader").show();
 	client = await Ae.Aepp();
 	const address = ($('#messages').val());
 	const qfee = ($('#qfee').val());
 	const ttl = ($('#ttl').val());
-	const consul = await contractCall('extend_oracle', [address,ttl], 0);
+	const consul = await contractCall('extendOracle', [address,ttl], 0);
 	if(consul){document.getElementById('messages').value = 'extend';}
 	$("#loader").hide();
 });
@@ -197,43 +197,43 @@ $('#quest_answerBtn').click(async function(){
 	client = await Ae.Aepp();
 	const question = ($('#question').val());
 	const answer = ($('#answer').val());
-	const consul = await contractCall('quest_answer', [question,answer],0);
+	const consul = await contractCall('quest_answer', [question,answer], 0);
 	if(consul){document.getElementById('messages').value = 'registered';}
 	$("#loader").hide();
 });
 
-//If someone clicks to consult Question,  execute get_question
-//Si alguien hace clic para consultar pregunta, ejecute get_question
+//If someone clicks to consult Question,  execute getQuestion
+//Si alguien hace clic para consultar pregunta, ejecute getQuestion
 $('#getQuestionBtn').click(async function(){
 	$("#loader").show();
 	const address = ($('#address').val());
 	const idquery = ($('#idquery').val());
 	client = await Ae.Aepp();
-	const consul = await callStatic('get_question',[address,idquery]);
+	const consul = await callStatic('getQuestion',[address,idquery]);
 	document.getElementById('messages2').value = consul;
 	$("#loader").hide();
 });
 
-//If someone clicks to check if you have an answer,  execute has_answer
-//Si alguien hace clic para consultar si tiene respuesta, ejecute has_answer
+//If someone clicks to check if you have an answer,  execute hasAnswer
+//Si alguien hace clic para consultar si tiene respuesta, ejecute hasAnswer
 $('#hasAnswerBtn').click(async function(){
 	$("#loader").show();
 	const address = ($('#address').val());
 	const idquery = ($('#idquery').val());
 	client = await Ae.Aepp();
-	const consul = await callStatic('has_answer',[address,idquery]);
+	const consul = await callStatic('hasAnswer',[address,idquery]);
 	document.getElementById('messages2').value = consul;
 	$("#loader").hide();
 });
 
-//If someone clicks to consult Answer,  execute get_answer
-//Si alguien hace clic para consultar respuesta, ejecute get_answer
+//If someone clicks to consult Answer,  execute getAnswer
+//Si alguien hace clic para consultar respuesta, ejecute getAnswer
 $('#getAnswerBtn').click(async function(){
 	$("#loader").show();
 	const address = ($('#address').val());
 	const idquery = ($('#idquery').val());
 	client = await Ae.Aepp();
-	const consul = await callStatic('get_answer',[address,idquery]);
+	const consul = await callStatic('getAnswer',[address,idquery]);
 	document.getElementById('messages2').value = consul.Some[0];
 	$("#loader").hide();
 });
@@ -248,19 +248,19 @@ $('#balanceBtn').click(async function(){
 	$("#loader").hide();
 });
 
-//If someone clicks to consult Fee Query,  execute query_fee
-//Si alguien hace clic para consultar Fee Query, ejecute query_fee
+//If someone clicks to consult Fee Query,  execute queryFee
+//Si alguien hace clic para consultar Fee Query, ejecute queryFee
 $('#queryFeeBtn').click(async function(){
 	$("#loader").show();
 	client = await Ae.Aepp();
 	const address = ($('#address').val());
-	const consul = await callStatic('query_fee',[address]);
+	const consul = await callStatic('queryFee',[address]);
 	document.getElementById('fee').value = consul;
 	$("#loader").hide();
 });
 
-//If someone clicks to create Query,  execute create_query
-//Si alguien hace clic para crear query, ejecute create_query
+//If someone clicks to create Query,  execute createQuery
+//Si alguien hace clic para crear query, ejecute createQuery
 $('#createQueryBtn').click(async function(){
 	$("#loader").show();
 	//Create new variable for get the values from the input fields
@@ -270,10 +270,10 @@ $('#createQueryBtn').click(async function(){
 		  fee = ($('#fee').val());
 	//Make the contract call to consult the oracle with the newly passed values
 	//Llame al contrato para consultar el oráculo con los valores recibidos
-	await contractCall('create_query', [address,string,fee,1,1], fee);
+	await contractCall('createQuery', [address,string,fee,1,1], fee);
 	const consul = await callStatic('get_query',[]);
 	document.getElementById('idquery').value = consul;
-	const result = await callStatic('get__answer',[address,consul]);
+	const result = await callStatic('getAnswer',[address,consul]);
 	document.getElementById('messages4').value = result.Some[0];
 	$("#loader").hide();
 });
