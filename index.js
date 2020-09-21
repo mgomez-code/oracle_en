@@ -4,53 +4,61 @@ contract Source =
     source_oracle : map(address, oracle(string, string)),
     id_query : map(address, oracle_query(string, string)),
     question_answer : map(string, string)}
+
   stateful entrypoint init() : state =  						 
     { source_oracle = {},
       id_query = {}, 
       question_answer  = {} }
+
   stateful entrypoint register_oracle(      						
         qfee : int,     						 //Minimum payment fee
         rttl : int) : oracle(string, string) =   //oracle expiration time blocks
     let register: oracle(string, string) =  Oracle.register(Contract.address, qfee, RelativeTTL(rttl))
     put(state{ source_oracle[Contract.address] = register })
     register
+
   entrypoint get_oracle(): oracle(string, string) =  					
     switch(Map.lookup(Contract.address, state.source_oracle))
       None    => abort("Not registered")
       Some(x) => x
+
   stateful entrypoint extend_oracle(  							
                                 o   : oracle(string, string),	//oracle address
                                 ttl : int) : unit =		//oracle expiration time blocks 
     Oracle.extend(o, RelativeTTL(ttl))
-  payable stateful entrypoint quest_answer(quest : string, answ : string) : bool = 
-    let val = Call.value
-    if(val > 0)
-      false
-    else
-      put(state{question_answer[quest] = answ })
-      true
+
+  stateful entrypoint quest_answer(quest : string, answ : string) : bool = 
+    put(state{question_answer[quest] = answ })
+    true
+
   entrypoint get_question(  								
                 o : oracle(string, string),    		            //oracle address
                 q : oracle_query(string, string)) : string =    //id of query in oracle
     Oracle.get_question(o, q)      							    //show the question
+
   entrypoint has_answer(  								
                        o : oracle(string, string),
                        q : oracle_query(string, string)) =
     switch(Oracle.get_answer(o, q))
       None    => false
       Some(_) => true
+
   entrypoint get__answer(  
         o : oracle(string, string),  					        //oracle address
         q : oracle_query(string, string)) : option(string) =    //id of query in oracle
     Oracle.get_answer(o, q)  								   //show the answer
+
   stateful entrypoint contract_balance() = 
     Contract.balance
+
   entrypoint get_query(): oracle_query(string, string) =  
     switch(Map.lookup(Call.caller, state.id_query))
       None    => abort("No query")
       Some(x) => x
+
   entrypoint query_fee(o : oracle(string, string)) : int = 	//oracle address 			
     Oracle.query_fee(o)
+
   payable stateful entrypoint create_query(      					
         o    : oracle(string, string),    	//oracle address
         q    : string,      				//question
@@ -63,25 +71,29 @@ contract Source =
     Oracle.respond(o, query, query_answer)
     put(state{id_query[Call.caller] = query })
     query
+
   entrypoint get_answer(stranswer : string) =  	//Check if there is an answer
     switch(Map.lookup(stranswer, state.question_answer))
       None    => abort("Not registered")
       Some(x) => x
+
   stateful entrypoint respond(  
             o    : oracle(string, string),  	   //oracle address
             q    : oracle_query(string, string),   //id of query in oracle
             r    : string) =  			           //reply
     Oracle.respond(o, q, r)        				   //reply
+
   entrypoint get_check(
                     o : oracle(string, string)) =  	    //oracle address
     Oracle.check(o)  									//show the answer
+
   stateful entrypoint contract_creator() = 
     Contract.creator
 `;
 
 //Address of the  smart contract on the testnet of the aeternity blockchain
 //Dirección del contrato inteligente en el testnet de la blockchain de aeternity
-const contractAddress = 'ct_4ZtkhDGbnXmQ8WPvAvpJjWbL7vHSVLXGjekoCormTCAVqn5Hf';
+const contractAddress = 'ct_2bGHMEH7HGEejv8CpVFMZRmwP4a6NsASGg6GZpq7CyjnhEbWLD';
 
 //Create variable for client so it can be used in different functions
 //Crear la variable cliente para las funciones
@@ -185,7 +197,7 @@ $('#quest_answerBtn').click(async function(){
 	client = await Ae.Aepp();
 	const question = ($('#question').val());
 	const answer = ($('#answer').val());
-	const consul = await contractCall('quest_answer', [question,answer], 0);
+	const consul = await callStatic('quest_answer', [question,answer]);
 	if(consul){document.getElementById('messages').value = 'registered';}
 	$("#loader").hide();
 });
